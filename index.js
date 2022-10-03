@@ -15,22 +15,23 @@ const config = new AWS.Config({
 AWS.config = config;
 
 const docClient = new AWS.DynamoDB.DocumentClient();
-const tableName = "BaiBao";
+const tableName = "newpapers";
 const multer = require("multer");
 const upload = multer();
 
-app.post("/", upload.fields([]), (req, res) => {
-  const { id, ten_bb, ten_ntg, chi_so, so_trang, nam_xb } = req.body;
-
+//create a new item
+app.post("/add", upload.fields([]), (req, res) => {
+  const { name, author, ISMB, pages, year } = req.body;
+  console.log(req.body);
   const params = {
     TableName: tableName,
     Item: {
       id,
-      ten_bb,
-      ten_ntg,
-      chi_so,
-      so_trang,
-      nam_xb,
+      name,
+      author,
+      ISMB,
+      pages,
+      year,
     },
   };
 
@@ -43,20 +44,7 @@ app.post("/", upload.fields([]), (req, res) => {
   });
 });
 
-app.get("/", (request, response) => {
-  const params = {
-    TableName: tableName,
-  };
-
-  docClient.scan(params, (err, data) => {
-    if (err) {
-      response.send("Internal ServerError");
-    } else {
-      return response.render("index", { baiBaos: data.Items });
-    }
-  });
-});
-
+// delete one item
 app.post("/delete", upload.fields([]), (req, res) => {
   const { id } = req.body;
   const params = {
@@ -74,4 +62,25 @@ app.post("/delete", upload.fields([]), (req, res) => {
   });
 });
 
-app.listen(3000);
+// get table data
+app.get("/", (request, response) => {
+  const params = {
+    TableName: tableName,
+  };
+
+  docClient.scan(params, (err, data) => {
+    if (err) {
+      response.send("Internal ServerError");
+    } else {
+      return response.render("home", { data: data.Items });
+    }
+  });
+});
+
+app.get("/add", (req, res) => {
+  return res.render("addPost");
+});
+
+app.listen(3000, () => {
+  console.log("server is running on port 3000");
+});
