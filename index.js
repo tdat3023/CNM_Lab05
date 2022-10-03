@@ -21,7 +21,7 @@ const upload = multer();
 
 //create a new item
 app.post("/add", upload.fields([]), (req, res) => {
-  const { name, author, ISMB, pages, year } = req.body;
+  const { id, name, author, ISMB, pages, year } = req.body;
   console.log(req.body);
   const params = {
     TableName: tableName,
